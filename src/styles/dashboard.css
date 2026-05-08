@@ -15,6 +15,33 @@
   border-bottom: 1px solid var(--glass-border);
 }
 
+.header-btn {
+  padding: 0.6rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme='light'] .header-btn {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+.header-btn:hover {
+  background: var(--bg-card-hover) !important;
+  transform: scale(1.1) translateY(-2px);
+}
+
+.update-timer {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.4rem 0.8rem;
+  border-radius: 2rem;
+  border: 1px solid var(--glass-border);
+}
+
 .header h1 {
   font-size: 2rem;
   background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
@@ -68,6 +95,24 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 2rem;
+  min-height: 450px; /* Ensure grid has height for charts */
+}
+
+.chart-container {
+  min-width: 0; /* Important for ResponsiveContainer in grid */
+  min-height: 400px;
+}
+
+[data-theme='light'] .iss-trend-card {
+  background: #fdf5e6;
+  color: #333;
+}
+
+.chart-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: inherit;
 }
 
 /* Chatbot styles */
@@ -253,10 +298,11 @@
   flex-direction: column;
   padding: 0.5rem 1rem;
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--bg-card); /* Use theme variable instead of static white */
   border: 1px solid var(--glass-border);
   min-height: 80px;
   overflow: hidden;
+  transition: var(--transition);
 }
 
 .news-item-main-row {

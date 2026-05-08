@@ -25,18 +25,27 @@ const ChartsSection = ({ speedHistory, newsData }) => {
 
   return (
     <div className="charts-grid">
-      <div className="glass-card chart-container" style={{ height: '400px' }}>
-        <h3 style={{ marginBottom: '1rem' }}>ISS Speed Velocity (km/h)</h3>
-        <ResponsiveContainer width="100%" height="90%">
-          <LineChart data={speedHistory}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+      <div className="glass-card chart-container iss-trend-card">
+        <h3 className="chart-title">ISS Speed Trend</h3>
+        <ResponsiveContainer width="100%" height={350}>
+          <LineChart 
+            data={speedHistory.length > 0 ? speedHistory : [{time: '', speed: 0}]}
+            margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+          >
+            <CartesianGrid strokeDasharray="1 1" stroke="rgba(0,0,0,0.1)" vertical={true} />
             <XAxis 
               dataKey="time" 
               stroke="var(--text-secondary)" 
               fontSize={10} 
-              tickFormatter={(t) => (t && typeof t === 'string' ? t.split(':').slice(1).join(':') : '')} 
+              tick={{ angle: -45, textAnchor: 'end', dy: 10 }}
+              interval="preserveStartEnd"
             />
-            <YAxis stroke="var(--text-secondary)" fontSize={10} />
+            <YAxis 
+              stroke="var(--text-secondary)" 
+              fontSize={10} 
+              domain={['auto', 'auto']}
+              tickFormatter={(val) => val.toLocaleString()}
+            />
             <Tooltip
               contentStyle={{
                 background: 'var(--bg-card)',
@@ -45,21 +54,29 @@ const ChartsSection = ({ speedHistory, newsData }) => {
                 color: 'var(--text-primary)',
               }}
             />
+            <Legend 
+              verticalAlign="top" 
+              align="center" 
+              wrapperStyle={{ paddingBottom: '20px' }}
+              iconType="circle"
+            />
             <Line
+              name="ISS Speed (km/h)"
               type="monotone"
               dataKey="speed"
-              stroke="var(--accent-primary)"
+              stroke="var(--text-primary)"
               strokeWidth={2}
-              dot={false}
+              dot={{ r: 3, fill: 'var(--text-primary)', strokeWidth: 0 }}
+              activeDot={{ r: 5 }}
               animationDuration={1000}
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="glass-card chart-container" style={{ height: '400px' }}>
+      <div className="glass-card chart-container">
         <h3 style={{ marginBottom: '1rem' }}>News Category Distribution</h3>
-        <ResponsiveContainer width="100%" height="90%">
+        <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
               data={newsDistribution}

@@ -16,15 +16,22 @@ import './styles/dashboard.css';
 function App() {
   const [location, setLocation] = useState(null);
   const [history, setHistory] = useState(getSavedPositions());
+  const historyRef = React.useRef(history);
   const [speed, setSpeed] = useState(0);
   const [speedHistory, setSpeedHistory] = useState([]);
   const [place, setPlace] = useState('');
   const [people, setPeople] = useState([]);
   const [theme, setTheme] = useState(getTheme());
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [lastFetch, setLastFetch] = useState(Date.now());
   const [nextUpdate, setNextUpdate] = useState(20);
   const [toast, setToast] = useState(null);
+
+  // Sync ref with state
+  useEffect(() => {
+    historyRef.current = history;
+    savePositions(history);
+  }, [history]);
 
   // Apply theme
   useEffect(() => {
@@ -52,14 +59,15 @@ function App() {
       });
 
       // Calculate speed (use API velocity if available, otherwise Haversine)
-      const currentSpeed = data.velocity || (history.length > 0 ? calculateSpeed(
+      const currentHistory = historyRef.current;
+      const currentSpeed = data.velocity || (currentHistory.length > 0 ? calculateSpeed(
         calculateDistance(
-          history[history.length - 1].latitude,
-          history[history.length - 1].longitude,
+          currentHistory[currentHistory.length - 1].latitude,
+          currentHistory[currentHistory.length - 1].longitude,
           newPos.latitude,
           newPos.longitude
         ),
-        newPos.timestamp - history[history.length - 1].timestamp
+        newPos.timestamp - currentHistory[currentHistory.length - 1].timestamp
       ) : 27600); // Default ISS speed approx
 
       setSpeed(currentSpeed);
@@ -132,13 +140,8 @@ function App() {
 
   const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
-  if (loading && !location) {
-    return (
-      <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'var(--bg-dark)' }}>
-        <div className="spinner"></div>
-      </div>
-    );
-  }
+  // We no longer block the whole UI with a spinner. 
+  // Components handle their own loading states for a much faster perceived performance.
 
   const dashboardData = {
     location,
@@ -157,14 +160,14 @@ function App() {
           </p>
         </div>
         <div className="header-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'right', minWidth: '100px' }}>
-            Next update in: {nextUpdate}s
+          <div className="update-timer">
+            Next update: {nextUpdate}s
           </div>
-          <button onClick={updateISSData} className="glass-card" style={{ padding: '0.5rem' }}>
-            <RefreshCw size={20} />
+          <button onClick={updateISSData} className="header-btn glass-card" title="Refresh Data">
+            <RefreshCw size={20} color={theme === 'dark' ? '#0ea5e9' : '#0284c7'} />
           </button>
-          <button onClick={toggleTheme} className="glass-card" style={{ padding: '0.5rem' }}>
-            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          <button onClick={toggleTheme} className="header-btn glass-card" title="Toggle Theme">
+            {theme === 'dark' ? <Sun size={20} color="#f59e0b" /> : <Moon size={20} color="#4f46e5" />}
           </button>
         </div>
       </header>

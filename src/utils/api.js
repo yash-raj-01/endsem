@@ -14,11 +14,23 @@ export const fetchISSLocation = async () => {
       velocity: response.data.velocity,
     };
   } catch (error) {
-    console.warn('Primary ISS API failed, trying fallback...');
-    // Fallback to a different public API if available or return slightly modified last known position
-    // For this demo, we'll return a simulated slightly moved position if we had one, 
-    // or just throw to be caught by the UI
-    throw error;
+    console.warn('Primary ISS API failed, using simulated fallback.');
+    
+    // Fallback: Get last position from storage or use a default starting point
+    const saved = JSON.parse(localStorage.getItem('iss_dashboard_positions') || '[]');
+    const lastPos = saved.length > 0 ? saved[saved.length - 1] : { latitude: 0, longitude: 0, timestamp: Date.now() / 1000 };
+    
+    // Simulate a small drift (ISS moves about 0.07 degrees per minute)
+    // 20 seconds is 1/3 minute -> ~0.02 degrees
+    return {
+      iss_position: {
+        latitude: lastPos.latitude + (Math.random() * 0.02 - 0.01),
+        longitude: lastPos.longitude + (0.05 + Math.random() * 0.05), // Moves mostly eastward
+      },
+      timestamp: (Date.now() / 1000),
+      velocity: 27600, // Constant simulated velocity
+      simulated: true
+    };
   }
 };
 
